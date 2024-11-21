@@ -56,4 +56,9 @@ public class ProductService {
     public void deletProduct(int productId) {
         repo.deleteById(productId);
     }
+
+    public List<Product> searchProduct(String keyword) {
+        System.out.println("Searching with the Keyword: " + keyword);
+        return repo.searchProduct(keyword);
+    }
 }
