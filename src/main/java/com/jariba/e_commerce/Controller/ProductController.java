@@ -6,8 +6,10 @@ import com.jariba.e_commerce.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,8 +39,72 @@ public class ProductController {
 
     }
 
+    @GetMapping("products/{productId}/image")
+    public ResponseEntity<byte[]> getProductImageById(@PathVariable int productId)
+    {
+        Product product = service.getProductsById(productId);
+        if(product != null)
+            return ResponseEntity.ok().contentType(MediaType.valueOf(product.getImageType())).body(product.getImageData());
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
 
 
+
+//    @PostMapping(value =  "/products", consumes = {"multipart/form-data", "pplication/octet-stream"})
+//   // @PostMapping("/products")
+//    public ResponseEntity<Product> addProduct(@RequestPart("product") Product product,@RequestPart("image") MultipartFile img)
+//    {
+//        System.out.println("Hello");
+//
+//        try {
+//            Product p1 = service.addProduct(product, img);
+//            return new ResponseEntity<>(p1,HttpStatus.CREATED);
+//        }
+//        catch (Exception e)
+//        {
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//
+//    }
+
+    @PostMapping(value = "/products")
+    public ResponseEntity<Product> addProduct(@RequestBody Product product)
+    {
+        try {
+            Product p = service.addProduct(product);
+            return new ResponseEntity<>(p,HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
+    @PostMapping(value = "/products/{productId}/image")
+    public ResponseEntity<Product> addProductImage(MultipartFile image, @PathVariable int productId)
+    {
+        try {
+            service.addimage(image, productId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable int productId)
+    {
+        service.deletProduct(productId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+//    @PutMapping("/products")
+//    public ResponseEntity<?> updateProduct(@RequestBody Product product)
 
 }
