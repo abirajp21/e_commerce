@@ -83,8 +83,31 @@ public class ProductController {
     }
 
 
+    @PutMapping("/products")
+    public ResponseEntity<?> updateProduct(@RequestBody Product product )
+    {
+        String response = service.updateProduct(product);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PutMapping("/products/{productId}/image")
+    public ResponseEntity<?> updateProductImage(MultipartFile image, @PathVariable int productId)
+    {
+        try {
+            service.addimage(image, productId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>("Product Not found",HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+
+
     @PostMapping(value = "/products/{productId}/image")
-    public ResponseEntity<Product> addProductImage(MultipartFile image, @PathVariable int productId)
+    public ResponseEntity<?> addProductImage(MultipartFile image, @PathVariable int productId)
     {
         try {
             service.addimage(image, productId);
@@ -97,12 +120,15 @@ public class ProductController {
 
     }
 
+
     @DeleteMapping("/products/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable int productId)
     {
         service.deletProduct(productId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 
     @GetMapping("/products/search")
     public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword)

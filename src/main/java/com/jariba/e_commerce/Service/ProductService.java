@@ -61,4 +61,16 @@ public class ProductService {
         System.out.println("Searching with the Keyword: " + keyword);
         return repo.searchProduct(keyword);
     }
+
+    public String updateProduct(Product product)
+    {
+        try {
+            repo.save(product);
+            return "Product updated Successfully";
+        }
+        catch (Exception e) {
+            return "Updation Failed";
+        }
+    }
+
 }
