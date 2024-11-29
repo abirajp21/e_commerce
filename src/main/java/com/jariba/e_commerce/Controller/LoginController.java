@@ -3,6 +3,7 @@ package com.jariba.e_commerce.Controller;
 
 import com.jariba.e_commerce.Model.*;
 import com.jariba.e_commerce.Service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,5 +52,12 @@ public class LoginController {
         else
             return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
+
+    @GetMapping("/login-id")
+    public String getSessionId(HttpServletRequest request)
+    {
+        return request.getSession().getId();
+    }
+
 
 }

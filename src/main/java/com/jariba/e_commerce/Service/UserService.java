@@ -5,13 +5,16 @@ import com.jariba.e_commerce.Model.User;
 import com.jariba.e_commerce.Repo.UserRepo;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Service
 
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     UserRepo userRepo;
 
@@ -23,7 +26,7 @@ public class UserService {
         if(userRepo.existsByEmailId(user.getEmailId()))
             throw new IllegalArgumentException("Email Id Already Exists");
 
-        if(userRepo.existsByUserName(user.getUserName()))
+        if(userRepo.existsByUserName(user.getUsername()))
             throw new IllegalArgumentException("Username Already Exists");
 
         user.setPassword(passwordEncoder(user.getPassword()));
@@ -42,5 +45,18 @@ public class UserService {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
         return encoder.encode(password);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepo.findByUserName(username);
+
+        if(user == null)
+        {
+            System.out.println("User Not Found");
+            throw new UsernameNotFoundException("User Not Found");
+        }
+        return user;
     }
 }
