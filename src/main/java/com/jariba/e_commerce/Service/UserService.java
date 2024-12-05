@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Service
-
 public class UserService implements UserDetailsService {
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    JwtService jwtService;
 
+    final int ENCODER_STRENGTH = 10;
 
     public String addUser(User user){
 
@@ -43,20 +45,42 @@ public class UserService implements UserDetailsService {
 
     private String passwordEncoder(String password){
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(ENCODER_STRENGTH);
         return encoder.encode(password);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        if(username == null)
+            throw new UsernameNotFoundException("Username is Null");
+
         User user = userRepo.findByUserName(username);
 
         if(user == null)
         {
-            System.out.println("User Not Found");
-            throw new UsernameNotFoundException("User Not Found");
+            //System.out.println("User Not Found");
+            throw new UsernameNotFoundException("Username Not Valid");
         }
         return user;
     }
+
+    public String verifyUserLogin(User user)
+    {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(ENCODER_STRENGTH);
+        try {
+            UserDetails validUser = this.loadUserByUsername(user.getUsername());
+            // Hashing the password is unique for evey time for the same input. so direct comparison won't work
+            if(encoder.matches(user.getPassword(), validUser.getPassword()))
+                return jwtService.generateToken(user.getUsername());
+        }
+        catch (UsernameNotFoundException e)
+        {
+            System.out.println(e.getMessage());
+            return "Username Not Found";
+        }
+
+        return "Invalid Password";
+    }
+
 }

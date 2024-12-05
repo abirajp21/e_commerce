@@ -6,6 +6,7 @@ import com.jariba.e_commerce.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,18 @@ public class LoginController {
     {
         return request.getSession().getId();
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> authenticateUser(@RequestBody User user)
+    {
+        String token = userService.verifyUserLogin(user);
+
+        if(token.length()>20)
+            return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION,token).body(token);
+
+        return new ResponseEntity<>(token, HttpStatus.UNAUTHORIZED);
+    }
+
 
 
 }
