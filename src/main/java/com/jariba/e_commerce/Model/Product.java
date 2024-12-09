@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -32,9 +33,13 @@ public class Product {
     private Date releaseDate;
     private String seller;
 
-    private String imageName;
-    private String imageType;
-    @Lob
-    private byte[] imageData;
+    //@OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    //private List<ProductImage> productImage;
+
+
+//    private String imageName;
+//    private String imageType;
+//    @Lob
+//    private byte[] imageData;
 
 }

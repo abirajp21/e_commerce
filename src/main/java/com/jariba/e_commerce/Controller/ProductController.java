@@ -2,10 +2,10 @@ package com.jariba.e_commerce.Controller;
 
 
 import com.jariba.e_commerce.Model.Product;
+import com.jariba.e_commerce.Model.ProductImage;
 import com.jariba.e_commerce.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,6 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getProducts()
     {
-
         return new ResponseEntity<>(service.getProducts(), HttpStatus.OK);
     }
 
@@ -41,11 +40,13 @@ public class ProductController {
     }
 
     @GetMapping("products/{productId}/image")
-    public ResponseEntity<byte[]> getProductImageById(@PathVariable int productId)
+    public ResponseEntity<List<ProductImage>> getProductImageById(@PathVariable int productId)
     {
-        Product product = service.getProductsById(productId);
-        if(product != null)
-            return ResponseEntity.ok().contentType(MediaType.valueOf(product.getImageType())).body(product.getImageData());
+        List<ProductImage> productImg = service.getProductImage(productId);
+        if(!productImg.isEmpty())
+            return ResponseEntity.ok().body(productImg);
+
+            //return ResponseEntity.ok().contentType(MediaType.valueOf(productImg.getImageType())).body(productImg.getProductImage());
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -87,15 +88,23 @@ public class ProductController {
     @PutMapping("/products")
     public ResponseEntity<?> updateProduct(@RequestBody Product product )
     {
-        String response = service.updateProduct(product);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+
+        try {
+            service.updateProduct(product);
+            return new ResponseEntity<>("Product Updated Successfully",HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @PutMapping("/products/{productId}/image")
     public ResponseEntity<?> updateProductImage(MultipartFile image, @PathVariable int productId)
     {
         try {
-            service.addimage(image, productId);
+            service.addProductImage(image, productId);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (Exception e)
@@ -111,7 +120,7 @@ public class ProductController {
     public ResponseEntity<?> addProductImage(MultipartFile image, @PathVariable int productId)
     {
         try {
-            service.addimage(image, productId);
+            service.addProductImage(image, productId);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (Exception e)

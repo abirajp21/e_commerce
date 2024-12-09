@@ -2,9 +2,12 @@ package com.jariba.e_commerce.Service;
 
 
 import com.jariba.e_commerce.Model.Product;
+import com.jariba.e_commerce.Model.ProductImage;
+import com.jariba.e_commerce.Repo.ProductImageRepo;
 import com.jariba.e_commerce.Repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,62 +18,71 @@ import java.util.List;
 public class ProductService {
 
     @Autowired
-    private ProductRepo repo;
+    private ProductImageRepo productImageRepo;
+    @Autowired
+    private ProductRepo productRepo;
+
     public List<Product> getProducts() {
 
-        return repo.findAll();
-
+        return productRepo.findAll();
     }
 
     public Product getProductsById(int productId) {
-        return repo.findById(productId).orElse(null);
+        return productRepo.findById(productId).orElse(null);
     }
 
-    public Product addProduct(Product product, MultipartFile img) throws IOException {
-        product.setImageName(img.getOriginalFilename());
-        product.setImageType(img.getContentType());
-        product.setImageData(img.getBytes());
-        return repo.save(product);
-    }
+//    public Product addProduct(Product product, MultipartFile img) throws IOException {
+//        product.setImageName(img.getOriginalFilename());
+//        product.setImageType(img.getContentType());
+//        product.setImageData(img.getBytes());
+//        return productRepo.save(product);
+//    }
 
     public Product addProduct(Product product) throws IOException {
 //        product.setImageName(img.getOriginalFilename());
 //        product.setImageType(img.getContentType());
 //        product.setImageData(img.getBytes());
-        return repo.save(product);
+        return productRepo.save(product);
     }
 
-    public void addimage(MultipartFile img, int productId) throws  IOException{
-        Product p = repo.findById(productId).orElse(null);
+    public void addProductImage(MultipartFile img, int productId) throws Exception{
 
-        if(p == null)
-            throw new IOException();
+        ProductImage p = new ProductImage();
+        Product product = productRepo.findById(productId).orElse(null);
+        if(product == null) {
+            throw new IllegalArgumentException("ProductId is Invalid");
+        }
 
         p.setImageName(img.getOriginalFilename());
         p.setImageType(img.getContentType());
-        p.setImageData(img.getBytes());
-
-        repo.save(p);
+        p.setProductImage(img.getBytes());
+        p.setProduct(product);
+        productImageRepo.save(p);
     }
 
     public void deletProduct(int productId) {
-        repo.deleteById(productId);
+        productRepo.deleteById(productId);
     }
 
     public List<Product> searchProduct(String keyword) {
         System.out.println("Searching with the Keyword: " + keyword);
-        return repo.searchProduct(keyword);
+        return productRepo.searchProduct(keyword);
     }
 
-    public String updateProduct(Product product)
+    public void updateProduct(Product product) throws  Exception
     {
         try {
-            repo.save(product);
-            return "Product updated Successfully";
+            productRepo.save(product);
         }
         catch (Exception e) {
-            return "Updation Failed";
+            throw new Exception("Product updation Failed");
         }
     }
 
+    public List<ProductImage> getProductImage(int productId) {
+
+        List<ProductImage> productImage;
+        productImage = productImageRepo.findByProductId(productId);
+        return productImage;
+    }
 }
